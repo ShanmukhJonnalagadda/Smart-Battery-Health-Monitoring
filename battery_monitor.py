@@ -161,6 +161,62 @@ def show_summary():
     print(f"Average temperature: {average_temperature:.2f} C")
 
 
+def analyze_readings():
+    readings = load_readings()
+
+    if not readings:
+        print("No battery readings available.")
+        return
+
+    # Collect voltage and temperature values
+    voltages = [float(row["voltage_v"]) for row in readings]
+    temperatures = [float(row["temperature_c"]) for row in readings]
+
+    # Count healthy readings
+    healthy_count = sum(
+        row["battery_status"] == "HEALTHY"
+        for row in readings
+    )
+
+    # Calculate percentage of healthy readings
+    healthy_percentage = (healthy_count / len(readings)) * 100
+
+    # Display analysis results
+    print("\n--- Battery Data Analysis ---")
+    print("Total readings:", len(readings))
+    print(f"Lowest voltage: {min(voltages):.2f} V")
+    print(f"Highest voltage: {max(voltages):.2f} V")
+    print(f"Highest temperature: {max(temperatures):.2f} C")
+    print(f"Healthy readings: {healthy_percentage:.1f}%")
+
+
+    while True:
+        print("\n1. Take a battery reading")
+        print("2. View the last five readings")
+        print("3. View monitoring summary")
+        print("4. Make a graph")
+        print("5. Analyze battery data")
+        print("6. Exit")
+
+        choice = input("Choose an option (1-6): ").strip()
+
+        if choice == "1":
+            take_reading()
+        elif choice == "2":
+            show_history()
+        elif choice == "3":
+            show_summary()
+        elif choice == "4":
+            make_chart()
+        elif choice == "5":
+            analyze_readings()
+        elif choice == "6":
+            print("Battery Monitoring Stopped")
+            break
+        else:
+            print("Please enter a number from 1 to 6.")
+
+
 def make_chart():
     readings = load_readings()
     if not readings:
@@ -199,6 +255,7 @@ def make_chart():
     plt.close(figure)
 
 
+
 def main():
     print("Smart Battery Health Monitoring System")
     print("Educational demo: enter simulated or manually observed measurements.")
@@ -208,8 +265,10 @@ def main():
         print("2. View the last five readings")
         print("3. View monitoring summary")
         print("4. Make a graph")
-        print("5. Exit")
-        choice = input("Choose an option (1-5): ").strip()
+        print("5. Analyze battery data")
+        print("6. Exit")
+
+        choice = input("Choose an option (1-6): ").strip()
 
         if choice == "1":
             take_reading()
@@ -220,10 +279,12 @@ def main():
         elif choice == "4":
             make_chart()
         elif choice == "5":
+            analyze_readings()
+        elif choice == "6":
             print("Battery Monitoring Stopped")
             break
         else:
-            print("Please enter a number from 1 to 5.")
+            print("Please enter a number from 1 to 6.")
 
 
 if __name__ == "__main__":
