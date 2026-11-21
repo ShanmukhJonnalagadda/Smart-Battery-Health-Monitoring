@@ -1,5 +1,3 @@
-
-
 """Beginner-friendly simulated Battery Health Monitoring System.
 
 Readings are entered manually. This is an educational tool, not a certified BMS.
@@ -25,8 +23,6 @@ COLUMNS = [
     "temperature_c", "power_w", "voltage_status",
     "temperature_status", "battery_status",
 ]
-
-
 def get_number(prompt, allow_negative=False):
     """Ask until the user enters a valid, finite number."""
     while True:
@@ -109,7 +105,6 @@ def take_reading():
     print(f"Temperature: {temperature:.2f} C  ({t_status})")
     print(f"Power: {power:.2f} W")
     print("Battery Status:", health)
-
     reading = {
         "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
         "battery_id": battery_id,
@@ -188,35 +183,6 @@ def analyze_readings():
     print(f"Highest voltage: {max(voltages):.2f} V")
     print(f"Highest temperature: {max(temperatures):.2f} C")
     print(f"Healthy readings: {healthy_percentage:.1f}%")
-
-
-    while True:
-        print("\n1. Take a battery reading")
-        print("2. View the last five readings")
-        print("3. View monitoring summary")
-        print("4. Make a graph")
-        print("5. Analyze battery data")
-        print("6. Exit")
-
-        choice = input("Choose an option (1-6): ").strip()
-
-        if choice == "1":
-            take_reading()
-        elif choice == "2":
-            show_history()
-        elif choice == "3":
-            show_summary()
-        elif choice == "4":
-            make_chart()
-        elif choice == "5":
-            analyze_readings()
-        elif choice == "6":
-            print("Battery Monitoring Stopped")
-            break
-        else:
-            print("Please enter a number from 1 to 6.")
-
-
 def make_chart():
     readings = load_readings()
     if not readings:
@@ -283,12 +249,3 @@ def main():
         elif choice == "6":
             print("Battery Monitoring Stopped")
             break
-        else:
-            print("Please enter a number from 1 to 6.")
-
-
-if __name__ == "__main__":
-    try:
-        main()
-    except (KeyboardInterrupt, EOFError):
-        print("\nBattery Monitoring Stopped")
