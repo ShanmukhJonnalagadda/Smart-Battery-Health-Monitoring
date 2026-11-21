@@ -17,7 +17,7 @@ A Python-based battery monitoring and diagnostic system that processes simulated
 
 The graph displays recorded voltage, current, and temperature measurements over time.
 
-![Battery Monitoring Graph](images/battery_chart.png)
+![Battery Monitoring Graph](battery_chart.png)
 
 ## Technologies
 
