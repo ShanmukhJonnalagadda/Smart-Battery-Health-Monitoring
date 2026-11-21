@@ -249,3 +249,9 @@ def main():
         elif choice == "6":
             print("Battery Monitoring Stopped")
             break
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (KeyboardInterrupt, EOFError):
+        print("\nBattery Monitoring Stopped")
