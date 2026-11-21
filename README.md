@@ -34,6 +34,19 @@ python battery_monitor.py
 
 Follow the interactive menu to record readings, view history, and generate graphs.
 
+
+## Automated Testing
+
+This project uses Python's built-in `unittest` framework to verify battery monitoring functions.
+
+Run the automated tests from the project directory:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+The tests cover voltage classification, temperature classification, boundary values, and HEALTHY, WARNING, and CRITICAL battery conditions.
+
 ## Project Purpose
 
 This project demonstrates Python programming, conditional logic, loops, functions, electrical calculations, data handling, and visualization.
