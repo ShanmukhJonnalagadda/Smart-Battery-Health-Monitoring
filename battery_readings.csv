@@ -1,5 +1,0 @@
-timestamp,battery_id,voltage_v,current_a,temperature_c,power_w,voltage_status,temperature_status,battery_status
-2026-11-20T19:56:16-05:00,104,3.80,4.00,32.00,15.20,Normal,Normal,HEALTHY
-2026-11-20T19:57:09-05:00,101,3.67,4.00,38.00,14.68,Normal,Normal,HEALTHY
-2026-11-20T19:57:53-05:00,102,4.36,6.00,42.00,26.16,High,High,WARNING
-2026-11-20T19:58:55-05:00,103,4.32,2.00,21.00,8.64,High,Normal,WARNING
