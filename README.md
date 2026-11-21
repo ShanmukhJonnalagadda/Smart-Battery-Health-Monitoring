@@ -10,6 +10,7 @@ A Python-based battery monitoring and diagnostic system that processes simulated
 - Save battery readings with timestamps in CSV format
 - View recorded measurements and summaries
 - Visualize battery measurements using Matplotlib
+- Analyze saved battery readings to identify minimum and maximum voltage, highest temperature, and percentage of healthy readings.
 
 ## Screenshots
 
