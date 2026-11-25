@@ -1,4 +1,5 @@
 # Smart Battery Health Monitoring System
+[![Battery Monitoring Tests](https://github.com/ShanmukhJonnalagadda/Smart-Battery-Health-Monitoring/actions/workflows/tests.yml/badge.svg)](https://github.com/ShanmukhJonnalagadda/Smart-Battery-Health-Monitoring/actions/workflows/tests.yml)
 
 A Python-based battery monitoring and diagnostic system that processes simulated battery measurements, identifies abnormal operating conditions, stores readings, and visualizes battery performance.
 
