@@ -66,7 +66,7 @@ and visualization.
 
 ## 3. System Architecture
 
-```mermaid id="nqv69g"
+```mermaid
 flowchart TD
     A[Manual Battery Measurements] --> B[Input Validation]
     B --> C[Measurement Processing]
