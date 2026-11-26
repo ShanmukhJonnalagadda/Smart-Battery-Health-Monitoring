@@ -228,42 +228,81 @@ def analyze_readings():
     print(f"Healthy readings: {healthy_percentage:.1f}%")
 
 def make_chart():
+    """Generate monitoring graphs for a selected battery."""
     readings = load_readings()
     if not readings:
-        print("\nNo readings saved yet. Choose option 1 first.")
+        print("No battery readings available.")
         return
 
-    # Matplotlib is only needed for charts. The rest runs without it.
     try:
         import matplotlib.pyplot as plt
     except ImportError:
-        print("Install chart support first: python -m pip install matplotlib")
+        print("Install matplotlib using:")
+        print("python -m pip install matplotlib")
         return
 
-    numbers = list(range(1, len(readings) + 1))
-    voltage = [float(row["voltage_v"]) for row in readings]
-    current = [float(row["current_a"]) for row in readings]
-    temperature = [float(row["temperature_c"]) for row in readings]
+    battery_ids = sorted({row["battery_id"] for row in readings})
+    print("Available batteries:", ", ".join(battery_ids))
+    battery_id = input("Enter battery ID: ").strip()
+    selected = [row for row in readings if row["battery_id"] == battery_id]
+    if not selected:
+        print("Battery ID not found.")
+        return
 
-    figure, axes = plt.subplots(3, 1, figsize=(9, 8), sharex=True)
-    for axis, values, title, unit in zip(
-        axes,
-        (voltage, current, temperature),
-        ("Voltage", "Current", "Temperature"),
-        ("V", "A", "C"),
-    ):
-        axis.plot(numbers, values, marker="o")
-        axis.set_ylabel(unit)
-        axis.set_title(title)
-        axis.grid(True)
-    axes[-1].set_xlabel("Saved reading number")
-    figure.suptitle("Battery Monitoring History")
-    figure.tight_layout()
+    # Sort measurements chronologically within this battery.
+    selected.sort(key=lambda row: datetime.fromisoformat(row["timestamp"]))
+    numbers = list(range(1, len(selected) + 1))
+    voltage = [float(row["voltage_v"]) for row in selected]
+    current = [float(row["current_a"]) for row in selected]
+    temperature = [float(row["temperature_c"]) for row in selected]
+    power = [float(row["power_w"]) for row in selected]
+
+    figure, axes = plt.subplots(4, 1, figsize=(10, 12), sharex=True)
+
+    # Voltage graph and illustrative operating boundaries.
+    axes[0].plot(numbers, voltage, color="royalblue", marker="o")
+    axes[0].axhline(MIN_VOLTAGE, color="orange", linestyle="--",
+                    label="Minimum normal voltage")
+    axes[0].axhline(MAX_VOLTAGE, color="orange", linestyle="--",
+                    label="Maximum normal voltage")
+    axes[0].axhline(CRITICAL_BELOW_VOLTAGE, color="red", linestyle="--",
+                    label="Critical voltage boundary")
+    axes[0].set_title("Battery Voltage")
+    axes[0].set_ylabel("Voltage (V)")
+    axes[0].legend(fontsize=8)
+
+    # Current graph.
+    axes[1].plot(numbers, current, color="green", marker="o")
+    axes[1].set_title("Battery Current")
+    axes[1].set_ylabel("Current (A)")
+
+    # Temperature graph and illustrative operating boundaries.
+    axes[2].plot(numbers, temperature, color="darkorange", marker="o")
+    axes[2].axhline(MIN_TEMPERATURE, color="orange", linestyle="--",
+                    label="Minimum normal temperature")
+    axes[2].axhline(MAX_TEMPERATURE, color="orange", linestyle="--",
+                    label="Maximum normal temperature")
+    axes[2].axhline(CRITICAL_ABOVE_TEMPERATURE, color="red", linestyle="--",
+                    label="Critical temperature boundary")
+    axes[2].set_title("Battery Temperature")
+    axes[2].set_ylabel("Temperature (C)")
+    axes[2].legend(fontsize=8)
+
+    # Power graph.
+    axes[3].plot(numbers, power, color="purple", marker="o")
+    axes[3].set_title("Battery Power")
+    axes[3].set_ylabel("Power (W)")
+    axes[3].set_xlabel("Reading Number")
+    for axis in axes:
+        axis.grid(True, alpha=0.3)
+    axes[3].set_xticks(numbers)
+    figure.suptitle(f"Battery {battery_id} Monitoring Dashboard",
+                    fontsize=16, fontweight="bold")
+    figure.tight_layout(rect=[0, 0, 1, 0.96])
     figure.savefig(CHART_FILE, dpi=150)
-    print("Chart saved to", CHART_FILE.name)
+    print(f"Chart saved to {CHART_FILE.name}")
     plt.show()
     plt.close(figure)
-
 
 
 def analyze_individual_battery():
