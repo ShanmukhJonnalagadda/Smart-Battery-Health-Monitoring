@@ -17,12 +17,17 @@ CRITICAL_BELOW_VOLTAGE = 3.0
 CRITICAL_ABOVE_TEMPERATURE = 50.0
 
 DATA_FILE = Path(__file__).with_name("battery_readings.csv")
+SAMPLE_FILE = (
+    Path(__file__).parent / "data" / "sample_battery_readings.csv"
+)
 CHART_FILE = Path(__file__).with_name("battery_chart.png")
 COLUMNS = [
     "timestamp", "battery_id", "voltage_v", "current_a",
     "temperature_c", "power_w", "voltage_status",
     "temperature_status", "battery_status",
 ]
+
+
 def get_number(prompt, allow_negative=False):
     """Ask until the user enters a valid, finite number."""
     while True:
@@ -85,6 +90,44 @@ def load_readings():
         return list(csv.DictReader(file))
 
 
+
+def load_sample_data():
+    """Import synthetic readings without duplicating existing rows."""
+
+    if not SAMPLE_FILE.exists():
+        print("Sample dataset not found.")
+        return
+
+    with SAMPLE_FILE.open("r", newline="", encoding="utf-8") as file:
+        reader = csv.DictReader(file)
+
+        if reader.fieldnames != COLUMNS:
+            print("Invalid sample dataset format.")
+            return
+
+        sample_readings = list(reader)
+
+    existing_readings = load_readings()
+
+    existing_keys = {
+        (row["timestamp"], row["battery_id"])
+        for row in existing_readings
+    }
+
+    imported = 0
+
+    for row in sample_readings:
+        key = (row["timestamp"], row["battery_id"])
+
+        if key not in existing_keys:
+            save_reading(row)
+            existing_keys.add(key)
+            imported += 1
+
+    print(f"Sample readings imported: {imported}")
+    print(f"Duplicate readings skipped: {len(sample_readings) - imported}")
+
+
 def take_reading():
     print("\n--- New battery reading ---")
     battery_id = input("Enter battery ID (e.g., 101): ").strip() or "101"
@@ -108,10 +151,10 @@ def take_reading():
     reading = {
         "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
         "battery_id": battery_id,
-        "voltage_v": f"{voltage:.2f}",
-        "current_a": f"{current:.2f}",
-        "temperature_c": f"{temperature:.2f}",
-        "power_w": f"{power:.2f}",
+        "voltage_v": str(voltage),
+        "current_a": str(current),
+        "temperature_c": str(temperature),
+        "power_w": str(power),
         "voltage_status": v_status,
         "temperature_status": t_status,
         "battery_status": health,
@@ -183,6 +226,7 @@ def analyze_readings():
     print(f"Highest voltage: {max(voltages):.2f} V")
     print(f"Highest temperature: {max(temperatures):.2f} C")
     print(f"Healthy readings: {healthy_percentage:.1f}%")
+
 def make_chart():
     readings = load_readings()
     if not readings:
@@ -222,9 +266,70 @@ def make_chart():
 
 
 
+def analyze_individual_battery():
+    """Analyze readings belonging to one battery."""
+
+    readings = load_readings()
+
+    if not readings:
+        print("No battery readings available.")
+        return
+
+    battery_ids = sorted({
+        row["battery_id"] for row in readings
+    })
+
+    print("Available batteries:", ", ".join(battery_ids))
+
+    battery_id = input("Enter battery ID: ").strip()
+
+    selected = [
+        row for row in readings
+        if row["battery_id"] == battery_id
+    ]
+
+    if not selected:
+        print("Battery ID not found.")
+        return
+
+    voltages = [
+        float(row["voltage_v"]) for row in selected
+    ]
+
+    temperatures = [
+        float(row["temperature_c"]) for row in selected
+    ]
+
+    healthy = sum(
+        row["battery_status"] == "HEALTHY"
+        for row in selected
+    )
+
+    warning = sum(
+        row["battery_status"] == "WARNING"
+        for row in selected
+    )
+
+    critical = sum(
+        row["battery_status"] == "CRITICAL"
+        for row in selected
+    )
+
+    print(f"\n--- Battery {battery_id} Analysis ---")
+    print("Total readings:", len(selected))
+    print(f"Lowest voltage: {min(voltages):.2f} V")
+    print(f"Highest voltage: {max(voltages):.2f} V")
+    print(f"Average voltage: {sum(voltages)/len(selected):.2f} V")
+    print(f"Highest temperature: {max(temperatures):.2f} C")
+    print("HEALTHY:", healthy)
+    print("WARNING:", warning)
+    print("CRITICAL:", critical)
+    print(f"Healthy readings: {healthy/len(selected)*100:.1f}%")
+
+
 def main():
     print("Smart Battery Health Monitoring System")
-    print("Educational demo: enter simulated or manually observed measurements.")
+    print("Educational battery monitoring simulation.")
 
     while True:
         print("\n1. Take a battery reading")
@@ -232,9 +337,11 @@ def main():
         print("3. View monitoring summary")
         print("4. Make a graph")
         print("5. Analyze battery data")
-        print("6. Exit")
+        print("6. Analyze an individual battery")
+        print("7. Load sample battery dataset")
+        print("8. Exit")
 
-        choice = input("Choose an option (1-6): ").strip()
+        choice = input("Choose an option (1-8): ").strip()
 
         if choice == "1":
             take_reading()
@@ -247,8 +354,15 @@ def main():
         elif choice == "5":
             analyze_readings()
         elif choice == "6":
+            analyze_individual_battery()
+        elif choice == "7":
+            load_sample_data()
+        elif choice == "8":
             print("Battery Monitoring Stopped")
             break
+        else:
+            print("Invalid option. Choose between 1 and 8.")
+
 
 if __name__ == "__main__":
     try:
